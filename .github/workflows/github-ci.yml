@@ -10,6 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: reactnativecommunity/react-native-android
+    name: Build apk release arm
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -31,7 +33,7 @@ jobs:
             - Second Change
           draft: false
           prerelease: false
-          
+
       - name: Upload .apks to artifacts
         uses: svenstaro/upload-release-action@v2
         with:
