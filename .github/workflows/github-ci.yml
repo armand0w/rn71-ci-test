@@ -1,0 +1,43 @@
+name: App release Android
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: reactnativecommunity/react-native-android
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build application
+        run: yarn install && cd android && chmod +x gradlew && ./gradlew assembleRelease -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+          
+      - name: Upload .apks to artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          tag: ${{ github.ref }}
+          asset_name: "app bundle"
+          overwrite: true
+          file_glob: true
+          file: android/app/build/outputs/apk/release/app-*
+
